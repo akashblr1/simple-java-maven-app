@@ -1,0 +1,17 @@
+pipeline {
+    agent any
+
+    parameters {
+        string(name: 'VERSION', defaultValue: '1.0.0', description: 'Release version')
+        string(name: 'CLIENT',  defaultValue: 'default', description: 'Client name')
+    }
+
+    stages {
+        stage('CD Parameters Check') {
+            steps {
+                echo "Deploying version: ${params.VERSION}"
+                echo "Client: ${params.CLIENT}"
+            }
+        }
+    }
+}
