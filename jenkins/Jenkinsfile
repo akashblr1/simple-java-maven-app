@@ -6,12 +6,25 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                sh 'mvn -B -DskipTests clean package'
+                sh '''
+                
+                /bin/bash -c  "$HOME/.sdkman/bin/sdkman-init.sh && \
+                /var/lib/jenkins/.sdkman/contrib/completion/bash/sdk use java 17.0.17-ms && \
+                /var/lib/jenkins/.sdkman/contrib/completion/bash/sdk use maven 3.9.12 && \
+                export JAVA_HOME='/var/lib/jenkins/.sdkman/candidates/java/current' && \
+                export PATH=\"$JAVA_HOME/bin:$PATH\" && \
+                /var/lib/jenkins/.sdkman/candidates/maven/current/bin/mvn --version && \
+                /var/lib/jenkins/.sdkman/candidates/maven/current/bin/mvn -B -DskipTests clean package"
+                '''
             }
         }
         stage('Test') {
             steps {
-                sh 'mvn test'
+            sh '''
+                /bin/bash -c  "$HOME/.sdkman/bin/sdkman-init.sh && \
+                /var/lib/jenkins/.sdkman/contrib/completion/bash/sdk use maven 3.9.12 && \
+                /var/lib/jenkins/.sdkman/candidates/maven/current/bin/mvn test"
+                '''
             }
             post {
                 always {
