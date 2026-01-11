@@ -1,5 +1,14 @@
 pipeline {
     agent any
+      environment {
+        NEXUS_URL = "http://localhost:8081"
+        NEXUS_REPO = "product" // Or your custom hosted repo name, e.g., 'myrepo'
+        CREDENTIALS_ID = "nexus-credentials" // Jenkins credential ID
+        GROUP_ID = "simple-maven"
+        ARTIFACT_ID = "my-application"
+        VERSION = "1.0.0"
+        FILE_PATH = "target/my-app-1.0-SNAPSHOT.jar" // Path relative to workspace
+    }
     options {
         skipStagesAfterUnstable()
     }
@@ -32,9 +41,33 @@ pipeline {
                 }
             }
         }
-        stage('Deliver') { 
+        stage('Publish to Nexus') {
             steps {
-                sh './jenkins/scripts/deliver.sh' 
+                script {
+                    // Use the readMavenPom step (from Pipeline Utility Steps plugin) 
+                    // to dynamically get artifact details if you prefer not to hardcode
+                    // def pom = readMavenPom file: 'pom.xml' 
+                    
+                    // Upload the artifact using the Nexus Artifact Uploader plugin step
+                    // The 'nexusVersion: "nexus3"' parameter specifies Nexus 3 compatibility
+                    step([
+                        $class: 'NexusArtifactUploader',
+                        nexusVersion: 'nexus3',
+                        protocol: 'http', // or 'https'
+                        nexusUrl: NEXUS_URL,
+                        groupId: GROUP_ID,
+                        version: VERSION,
+                        repository: NEXUS_REPO,
+                        credentialsId: CREDENTIALS_ID,
+                        artifacts: [[
+                            artifactId: ARTIFACT_ID,
+                            classifier: '',
+                            file: FILE_PATH,
+                            type: 'jar' // extension of the file
+                        ]]
+                    ])
+                    echo "Successfully uploaded ${FILE_PATH} to Nexus repository: ${NEXUS_REPO}"
+                }
             }
         }
     }
