@@ -22,7 +22,7 @@ pipeline {
                     def groupId = 'simple-maven'
                     def artifactId = 'my-application'
                     def packaging = 'jar'
-                    def nexusCredentialId = 'nexus-credential' // Jenkins ID for Nexus user/pass
+                    def nexusCredentialId = 'nexus-credentials' // Jenkins ID for Nexus user/pass
 
                     // Construct the direct download URL using the file path convention
                     // Example Path: /repository/raw-hosted-repo-name/my-application/1.0.0/my-application-1.0.0.jar
