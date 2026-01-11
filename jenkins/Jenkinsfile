@@ -1,7 +1,7 @@
 pipeline {
     agent any
       environment {
-        NEXUS_URL = "http://localhost:8081"
+        NEXUS_URL = "localhost:8081"
         NEXUS_REPO = "product" // Or your custom hosted repo name, e.g., 'myrepo'
         CREDENTIALS_ID = "nexus-credentials" // Jenkins credential ID
         GROUP_ID = "simple-maven"
