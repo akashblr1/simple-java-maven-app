@@ -27,7 +27,7 @@ pipeline {
                     // Construct the direct download URL using the file path convention
                     // Example Path: /repository/raw-hosted-repo-name/my-application/1.0.0/my-application-1.0.0.jar
 	                // simple-maven/my-application/1.0.0/my-application-1.0.0.jar
-                    def downloadUrl = "${nexusUrl}/repository/${repository}/${groupId}/${artifactId}/${params.VERSION}/${artifactId}-${params.APP_VERSION}.${packaging}"
+                    def downloadUrl = "${nexusUrl}/repository/${repository}/${groupId}/${artifactId}/${params.VERSION}/${artifactId}-${params.VERSION}.${packaging}"
                     def outputFileName = "${artifactId}-${params.VERSION}.${packaging}"
 
                     // Use withCredentials to inject Nexus credentials securely
