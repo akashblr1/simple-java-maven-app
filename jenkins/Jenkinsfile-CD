@@ -13,5 +13,46 @@ pipeline {
                 echo "Client: ${params.CLIENT}"
             }
         }
+        stage('Download Artifact from Nexus') {
+            steps {
+                script {
+                    // Define Nexus variables and Jenkins credential IDs
+                    def nexusUrl = 'http://3.110.113.159:8081'
+                    def repository = 'product' // Your target Nexus repository ID
+                    def groupId = 'simple-maven'
+                    def artifactId = 'my-application'
+                    def packaging = 'jar'
+                    def nexusCredentialId = 'nexus-credential' // Jenkins ID for Nexus user/pass
+
+                    // Construct the direct download URL using the file path convention
+                    // Example Path: /repository/raw-hosted-repo-name/my-application/1.0.0/my-application-1.0.0.jar
+	                // simple-maven/my-application/1.0.0/my-application-1.0.0.jar
+                    def downloadUrl = "${nexusUrl}/repository/${repository}/${groupId}/${artifactId}/${params.VERSION}/${artifactId}-${params.APP_VERSION}.${packaging}"
+                    def outputFileName = "${artifactId}-${params.VERSION}.${packaging}"
+
+                    // Use withCredentials to inject Nexus credentials securely
+                    withCredentials([usernamePassword(credentialsId: nexusCredentialId, passwordVariable: 'NEXUS_PASSWORD', usernameVariable: 'NEXUS_USER')]) {
+                        // Use curl with basic authentication and the direct URL
+                        sh "curl -u ${NEXUS_USER}:${NEXUS_PASSWORD} -L -o ${outputFileName} '${downloadUrl}'"
+                        echo "Downloaded artifact: ${outputFileName} from raw repository."
+                }
+            }
+        }
+
+        stage('Deploy to Remote Server') {
+            steps {
+                script {
+                    def remoteIp = '3.110.113.159'
+                    def remoteUser = 'ubuntu'
+                    def remoteDir = '/home/ubuntu/deployment'
+                    def outputFileName = "my-application-${params.VERSION}.jar"
+                    // 1. Copy the JAR file using scp (requires SSH Agent Plugin)
+                    sh "scp ${outputFileName} ubuntu@${remoteIp}:${remoteDir}/"
+
+                    }
+                }
+            }
+        }
+    
     }
 }
